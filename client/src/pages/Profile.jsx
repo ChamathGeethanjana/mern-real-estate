@@ -105,7 +105,7 @@ export default function Profile() {
       }
       dispatch(deleteUserSuccess(data));
     } catch (error) {
-      dispatch(updateUserFailure(error.message));
+      dispatch(deleteUserFailure(error.message));
     }
   };
 
@@ -120,7 +120,7 @@ export default function Profile() {
       }
       dispatch(signOutUserSuccess());
     } catch (error) {
-      deleteUserFailure(error.message);
+      dispatch(signOutUserFailure(error.message));
     }
   };
 
