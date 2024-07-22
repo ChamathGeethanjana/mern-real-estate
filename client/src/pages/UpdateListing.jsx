@@ -1,20 +1,19 @@
-import React, { useEffect } from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
+  getDownloadURL,
   getStorage,
   ref,
   uploadBytesResumable,
-  getDownloadURL,
 } from "firebase/storage";
 import { app } from "../firebase";
 import { useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 
-export default function CreatListing() {
-  const [files, setFiles] = useState([]);
+export default function CreateListing() {
   const { currentUser } = useSelector((state) => state.user);
   const navigate = useNavigate();
   const params = useParams();
+  const [files, setFiles] = useState([]);
   const [formData, setFormData] = useState({
     imageUrls: [],
     name: "",
@@ -49,7 +48,6 @@ export default function CreatListing() {
     fetchListing();
   }, []);
 
-  console.log(formData);
   const handleImageSubmit = (e) => {
     if (files.length > 0 && files.length + formData.imageUrls.length < 7) {
       setUploading(true);
@@ -57,7 +55,7 @@ export default function CreatListing() {
       const promises = [];
 
       for (let i = 0; i < files.length; i++) {
-        promises.push(StoreImage(files[i]));
+        promises.push(storeImage(files[i]));
       }
       Promise.all(promises)
         .then((urls) => {
@@ -69,19 +67,19 @@ export default function CreatListing() {
           setUploading(false);
         })
         .catch((err) => {
-          setImageUploadError("Image upload failed (2 mb max per image");
+          setImageUploadError("Image upload failed (2 mb max per image)");
           setUploading(false);
         });
     } else {
-      setImageUploadError("You can only upload 6 images per listing.");
+      setImageUploadError("You can only upload 6 images per listing");
       setUploading(false);
     }
   };
 
-  const StoreImage = async (file) => {
+  const storeImage = async (file) => {
     return new Promise((resolve, reject) => {
       const storage = getStorage(app);
-      const fileName = new Date().getTime() + "-" + file.name;
+      const fileName = new Date().getTime() + file.name;
       const storageRef = ref(storage, fileName);
       const uploadTask = uploadBytesResumable(storageRef, file);
       uploadTask.on(
@@ -117,6 +115,7 @@ export default function CreatListing() {
         type: e.target.id,
       });
     }
+
     if (
       e.target.id === "parking" ||
       e.target.id === "furnished" ||
@@ -145,8 +144,8 @@ export default function CreatListing() {
     try {
       if (formData.imageUrls.length < 1)
         return setError("You must upload at least one image");
-      if (+formData.discountPrice > +formData.regularPrice)
-        return setError("Discounted price can't be higher than regular price");
+      if (+formData.regularPrice < +formData.discountPrice)
+        return setError("Discount price must be lower than regular price");
       setLoading(true);
       setError(false);
       const res = await fetch(`/api/listing/update/${params.listingId}`, {
@@ -154,7 +153,10 @@ export default function CreatListing() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ ...formData, userRef: currentUser._id }),
+        body: JSON.stringify({
+          ...formData,
+          userRef: currentUser._id,
+        }),
       });
       const data = await res.json();
       setLoading(false);
@@ -296,7 +298,9 @@ export default function CreatListing() {
               />
               <div className="flex flex-col items-center">
                 <p>Regular price</p>
-                <span className="text-xs">($ / month)</span>
+                {formData.type === "rent" && (
+                  <span className="text-xs">($ / month)</span>
+                )}
               </div>
             </div>
             {formData.offer && (
@@ -313,7 +317,9 @@ export default function CreatListing() {
                 />
                 <div className="flex flex-col items-center">
                   <p>Discounted price</p>
-                  <span className="text-xs">($ / month)</span>
+                  {formData.type === "rent" && (
+                    <span className="text-xs">($ / month)</span>
+                  )}
                 </div>
               </div>
             )}
@@ -361,7 +367,7 @@ export default function CreatListing() {
                 <button
                   type="button"
                   onClick={() => handleRemoveImage(index)}
-                  className="p-3 text-red-700 rounded-lg uppercase hover:opacity-95"
+                  className="p-3 text-red-700 rounded-lg uppercase hover:opacity-75"
                 >
                   Delete
                 </button>
@@ -369,9 +375,9 @@ export default function CreatListing() {
             ))}
           <button
             disabled={loading || uploading}
-            className="p-3 bg-slate-700 text-white rounded-lg uppercase hover:opacity-75 disabled:opacity-80"
+            className="p-3 bg-slate-700 text-white rounded-lg uppercase hover:opacity-95 disabled:opacity-80"
           >
-            {loading ? "Loading..." : "Update Listing"}
+            {loading ? "Updating..." : "Update listing"}
           </button>
           {error && <p className="text-red-700 text-sm">{error}</p>}
         </div>
