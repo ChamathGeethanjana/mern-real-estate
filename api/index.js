@@ -6,6 +6,9 @@ import listingRouter from "./routes/listing.route.js";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import path from "path";
+import cors from "cors";
+
+app.use(cors());
 
 dotenv.config();
 
