@@ -8,20 +8,12 @@
       "config": {
         "runtime": "nodejs"
       }
-    },
-    {
-      "src": "client/dist/**",
-      "use": "@vercel/static"
     }
   ],
   "routes": [
     {
-      "src": "/(.*)",
-      "dest": "/client/dist/index.html"
-    },
-    {
       "src": "/api/(.*)",
-      "dest": "/api/$1"
+      "dest": "/api/"
     }
   ]
 }
