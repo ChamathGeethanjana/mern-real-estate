@@ -12,7 +12,7 @@ export default function About() {
         platform connects buyers, sellers, and renters with a comprehensive
         database of listings in prime locations. At CGS Estate, we are committed
         to offering a seamless and efficient experience, leveraging cutting-edge
-        technology to meet the diverse needs of our clients.
+        technology to meet the diverse needs of our clients..
       </p>
       <p className="mb-4 text-slate-700">
         Our mission at CGS Estate is to empower our clients by providing
